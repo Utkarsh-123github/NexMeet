@@ -5,12 +5,15 @@ import MeetingRoom from '@/components/ui/MeetingRoom';
 import { useGetCallById } from '@/hooks/useGetCallById';
 import { useUser } from '@clerk/nextjs'
 import { StreamCall, StreamTheme } from '@stream-io/video-react-sdk';
-import React, { useState } from 'react'
+import { useParams } from 'next/navigation';
+import React, {  useState } from 'react'
 
-const Meeting = ({params }:{params:{id : string}}) => {
+const Meeting = ({params}:{params:{id : string}}) => {
   const {isLoaded} = useUser();
   const [isSetupComplete, setIsSetupComplete] = useState(false);
-  const {call,isCallLoading} = useGetCallById(params.id)
+  const param = useParams<{id:string}>()
+  // console.log(param.id)
+  const {call,isCallLoading} = useGetCallById(param.id)
   if(!isLoaded || isCallLoading)return <Loader />
   return (
     <main className='h-screen w-full'>
