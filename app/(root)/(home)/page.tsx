@@ -3,7 +3,7 @@ import React from 'react'
 
 const Home = () => {
   const now = new Date();
-  const time = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
+  const time = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit',timeZone: 'Asia/Kolkata' });
   const date = (new Intl.DateTimeFormat('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(now))
   return (
     <section className='flex size-full flex-col gap-10 text-white'>
