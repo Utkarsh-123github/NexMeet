@@ -8,11 +8,15 @@ import { StreamCall, StreamTheme } from '@stream-io/video-react-sdk';
 import { useParams } from 'next/navigation';
 import React, {  useState } from 'react'
 
-const Meeting = ({params}:{params:{id : string}}) => {
+type Props = {
+  params : {id:string};
+};
+
+const Meeting = ({params}:Props) => {
   const {isLoaded} = useUser();
   const [isSetupComplete, setIsSetupComplete] = useState(false);
   const param = useParams<{id:string}>()
-  // console.log(param.id)
+  console.log(params)
   const {call,isCallLoading} = useGetCallById(param.id)
   if(!isLoaded || isCallLoading)return <Loader />
   return (
