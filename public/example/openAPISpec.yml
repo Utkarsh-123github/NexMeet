@@ -309,24 +309,3 @@ paths:
         '200':
           description: Message sent
 
-  /recordings/{meetingId}:
-    get:
-      summary: Get meeting recording
-      description: |
-        Returns the recording file and its metadata (URL, start/end time) for a given meeting. Ideal for playback,
-        archives, and audits.
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: meetingId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Recording information
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Recording'
