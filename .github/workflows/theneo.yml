@@ -36,7 +36,7 @@ jobs:
 
           WORKSPACE_SLUG: aideapad
 
-          SECRET: a3190bc7-fac8-406b-8d33-a8c3522de7fb
+          SECRET: ${{secrets.SECRET}}
 
           AUTO_PUBLISH: true
 
