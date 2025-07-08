@@ -277,35 +277,3 @@ paths:
                 items:
                   $ref: '#/components/schemas/Participant'
 
-  /meetings/{meetingId}/chat:
-    post:
-      summary: Send chat message
-      description: |
-        Sends a real-time chat message to a meeting room. This is useful for in-meeting communication between participants.
-        The message is stored and can be retrieved later via the chat history endpoint.
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: meetingId
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                sender_id:
-                  type: string
-                message:
-                  type: string
-              required:
-                - sender_id
-                - message
-      responses:
-        '200':
-          description: Message sent
-
