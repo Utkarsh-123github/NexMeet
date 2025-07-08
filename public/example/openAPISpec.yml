@@ -1,0 +1,332 @@
+openapi: 3.0.0
+info:
+  title: NexMeet Video Conferencing API
+  version: 1.0.0
+  description: |
+    NexMeet is a modern, feature-rich video conferencing platform designed to facilitate seamless online meetings,
+    webinars, and collaborative sessions. This API allows developers to integrate NexMeet's powerful conferencing
+    capabilities into their own applications, enabling user management, scheduling, participation, and authentication
+    workflows with high granularity and control.
+
+    The documentation below covers a wide array of endpoints, each crafted to ensure detailed understanding and easy
+    integration. Authentication is handled securely using bearer tokens, and the API responses follow industry-standard
+    conventions for consistency and reliability.
+
+servers:
+  - url: https://api.nexmeet.com/v1
+    description: Production server for NexMeet
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+      required:
+        - id
+        - name
+        - email
+
+    Meeting:
+      type: object
+      properties:
+        id:
+          type: string
+        topic:
+          type: string
+        description:
+          type: string
+        start_time:
+          type: string
+          format: date-time
+        duration:
+          type: integer
+          description: Duration in minutes
+        host_id:
+          type: string
+      required:
+        - id
+        - topic
+        - start_time
+        - duration
+
+    Participant:
+      type: object
+      properties:
+        user_id:
+          type: string
+        meeting_id:
+          type: string
+        joined_at:
+          type: string
+          format: date-time
+        left_at:
+          type: string
+          format: date-time
+
+    ChatMessage:
+      type: object
+      properties:
+        id:
+          type: string
+        meeting_id:
+          type: string
+        sender_id:
+          type: string
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - meeting_id
+        - sender_id
+        - message
+
+    Recording:
+      type: object
+      properties:
+        id:
+          type: string
+        meeting_id:
+          type: string
+        url:
+          type: string
+        started_at:
+          type: string
+          format: date-time
+        ended_at:
+          type: string
+          format: date-time
+      required:
+        - meeting_id
+        - url
+
+security:
+  - bearerAuth: []
+
+paths:
+  /auth/login:
+    post:
+      summary: User login
+      description: |
+        Authenticates a user with email and password credentials. Upon successful authentication, returns
+        a JWT token that must be used for all subsequent authenticated requests. Ensures secure
+        access control to protected resources within the NexMeet ecosystem.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              required:
+                - email
+                - password
+      responses:
+        '200':
+          description: Successful authentication with JWT token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        '401':
+          description: Unauthorized - Invalid credentials
+
+  /users:
+    get:
+      summary: List all users
+      description: |
+        Retrieves a comprehensive list of all registered users on the NexMeet platform. This endpoint is
+        useful for administrative dashboards and user management portals. The response includes essential
+        user details such as ID, name, email, and role in the platform (admin, host, or participant).
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A list of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /users/{userId}:
+    get:
+      summary: Get user details
+      description: |
+        Fetches profile details for a specific user by their unique ID. This endpoint is often used in
+        administrative dashboards or user profile pages and returns the name, email, and role of the user.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /meetings:
+    post:
+      summary: Create a meeting
+      description: |
+        Creates a new video conferencing meeting on NexMeet. The request includes details such as the meeting
+        topic, start time, duration, and an optional description. This endpoint allows users to programmatically
+        schedule and organize meetings, which will be hosted on the platform.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Meeting'
+      responses:
+        '201':
+          description: Meeting successfully created
+
+    get:
+      summary: List all meetings
+      description: |
+        Fetches all meetings scheduled by the authenticated user or visible to them, depending on their role.
+        Useful for rendering user dashboards or calendar integrations. Includes meeting metadata such as start
+        time, duration, host, and topic.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of meetings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Meeting'
+
+  /meetings/{meetingId}:
+    get:
+      summary: Get meeting details
+      description: |
+        Retrieves detailed information about a specific meeting by ID. Includes full metadata such as host,
+        duration, description, and start time. Helps in rendering detailed meeting pages or sending reminders.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: meetingId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Meeting details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Meeting'
+
+  /meetings/{meetingId}/participants:
+    get:
+      summary: Get meeting participants
+      description: |
+        Returns a list of participants who have joined a given meeting. This includes join and leave times,
+        helping hosts analyze attendance, engagement, and post-meeting reporting.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: meetingId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of meeting participants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Participant'
+
+  /meetings/{meetingId}/chat:
+    post:
+      summary: Send chat message
+      description: |
+        Sends a real-time chat message to a meeting room. This is useful for in-meeting communication between participants.
+        The message is stored and can be retrieved later via the chat history endpoint.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: meetingId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sender_id:
+                  type: string
+                message:
+                  type: string
+              required:
+                - sender_id
+                - message
+      responses:
+        '200':
+          description: Message sent
+
+  /recordings/{meetingId}:
+    get:
+      summary: Get meeting recording
+      description: |
+        Returns the recording file and its metadata (URL, start/end time) for a given meeting. Ideal for playback,
+        archives, and audits.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: meetingId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Recording information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recording'
