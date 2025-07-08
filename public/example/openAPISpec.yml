@@ -253,27 +253,3 @@ paths:
               schema:
                 $ref: '#/components/schemas/Meeting'
 
-  /meetings/{meetingId}/participants:
-    get:
-      summary: Get meeting participants
-      description: |
-        Returns a list of participants who have joined a given meeting. This includes join and leave times,
-        helping hosts analyze attendance, engagement, and post-meeting reporting.
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: meetingId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: List of meeting participants
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Participant'
-
